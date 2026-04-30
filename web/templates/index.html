@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Grocery List</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>🛒 Smart Grocery List</h1>
+      <p>Stay organized, grouped by category, and track progress.</p>
+    </header>
+
+    <section class="card">
+      <form
+        class="add-form"
+        hx-post="/items"
+        hx-target="#items-container"
+        hx-swap="innerHTML"
+      >
+        <input type="text" name="name" placeholder="Add item (e.g. milk, apple, bread)" />
+        <button type="submit">Add</button>
+      </form>
+    </section>
+
+    <section id="items-container" class="card" hx-get="/items" hx-trigger="load" hx-swap="innerHTML">
+      Loading...
+    </section>
+  </main>
+</body>
+</html>

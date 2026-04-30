@@ -1,0 +1,10 @@
+<div class="item {{if .Bought}}bought{{end}}">
+  <span>{{.Name}}</span>
+  <button
+    hx-put="/items/{{.ID}}/toggle"
+    hx-target="#items-container"
+    hx-swap="innerHTML"
+  >
+    {{if .Bought}}Mark Unbought{{else}}Mark Bought{{end}}
+  </button>
+</div>
