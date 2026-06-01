@@ -1,14 +1,18 @@
-<div class="progress-row">
-  <strong>Progress:</strong>
-  <span>{{.Progress}}</span>
+<div class="toolbar">
+  <div class="progress-row"><strong>Progress:</strong> <span>{{.Progress}}</span></div>
+  <div class="filters">
+    <button class="filter {{if eq .Filter "all"}}active{{end}}" hx-get="/items/filter/all" hx-target="#items-container" hx-swap="innerHTML">All</button>
+    <button class="filter {{if eq .Filter "unbought"}}active{{end}}" hx-get="/items/filter/unbought" hx-target="#items-container" hx-swap="innerHTML">Unbought</button>
+    <button class="filter {{if eq .Filter "bought"}}active{{end}}" hx-get="/items/filter/bought" hx-target="#items-container" hx-swap="innerHTML">Bought</button>
+  </div>
 </div>
 
-{{if .Error}}
-  <p class="error">{{.Error}}</p>
-{{end}}
+{{if .Error}}<p class="error">{{.Error}}</p>{{end}}
 
-{{if eq .Total 0}}
-  <p class="muted">No items yet. Add your first grocery item above.</p>
+{{if not .HasItems}}
+  <p class="muted">No items yet.</p>
+{{else if not .HasFilterHits}}
+  <p class="muted">No matching items.</p>
 {{else}}
   <div class="groups">
     {{range .Ordered}}
