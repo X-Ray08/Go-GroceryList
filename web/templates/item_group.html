@@ -1,8 +1,6 @@
 <section class="group">
   <h3>{{.Category}}</h3>
   <div class="item-list">
-    {{range .Items}}
-      {{template "item.html" .}}
-    {{end}}
+    {{range .Items}}{{template "item.html" .}}{{end}}
   </div>
 </section>
