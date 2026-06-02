@@ -47,6 +47,14 @@ func (s *ItemService) ToggleItem(id int) (model.Item, error) {
 	return item, nil
 }
 
+func (s *ItemService) DeleteItem(id int) error {
+	if err := s.repo.Delete(id); err != nil {
+		return err
+	}
+	log.Printf("deleted item id=%d", id)
+	return nil
+}
+
 func (s *ItemService) ListItems(filter string) ([]model.Item, error) {
 	if filter == "" {
 		filter = "all"

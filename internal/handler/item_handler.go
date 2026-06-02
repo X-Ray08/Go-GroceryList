@@ -33,6 +33,7 @@ func (h *ItemHandler) RegisterRoutes(r *gin.Engine) {
 	r.GET("/items/filter/:type", h.FilterItems)
 	r.POST("/items", h.CreateItem)
 	r.PUT("/items/:id/toggle", h.ToggleItem)
+	r.DELETE("/items/:id", h.DeleteItem)
 }
 
 func (h *ItemHandler) Index(c *gin.Context) {
@@ -68,6 +69,23 @@ func (h *ItemHandler) ToggleItem(c *gin.Context) {
 			return
 		}
 		h.renderList(c, http.StatusInternalServerError, "all", "failed to toggle item")
+		return
+	}
+	h.renderList(c, http.StatusOK, "all", "")
+}
+
+func (h *ItemHandler) DeleteItem(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		h.renderList(c, http.StatusBadRequest, "all", "invalid item id")
+		return
+	}
+	if err = h.service.DeleteItem(id); err != nil {
+		if err == repository.ErrNotFound {
+			h.renderList(c, http.StatusNotFound, "all", "item not found")
+			return
+		}
+		h.renderList(c, http.StatusInternalServerError, "all", "failed to delete item")
 		return
 	}
 	h.renderList(c, http.StatusOK, "all", "")
