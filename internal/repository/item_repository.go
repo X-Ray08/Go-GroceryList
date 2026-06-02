@@ -52,6 +52,24 @@ func (r *ItemRepository) Toggle(id int) (model.Item, error) {
 	return r.GetByID(id)
 }
 
+func (r *ItemRepository) Delete(id int) error {
+	res, err := r.db.Exec(`DELETE FROM items WHERE id = ?`, id)
+	if err != nil {
+		log.Printf("database error deleting item: %v", err)
+		return fmt.Errorf("delete item: %w", err)
+	}
+
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("rows affected: %w", err)
+	}
+	if affected == 0 {
+		return ErrNotFound
+	}
+
+	return nil
+}
+
 func (r *ItemRepository) GetByID(id int) (model.Item, error) {
 	row := r.db.QueryRow(`SELECT id, name, category, bought, created_at FROM items WHERE id = ?`, id)
 	var item model.Item
