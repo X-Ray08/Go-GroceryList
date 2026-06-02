@@ -21,7 +21,9 @@
       </form>
     </section>
 
-    <section id="items-container" class="card" hx-get="/items" hx-trigger="load" hx-swap="innerHTML">Loading...</section>
+    <section id="items-container" class="card" hx-get="/items" hx-trigger="load" hx-swap="innerHTML">
+      {{template "item_list.html" .}}
+    </section>
   </main>
 </body>
 </html>
