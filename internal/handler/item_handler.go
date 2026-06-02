@@ -4,10 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"go-grocerylist/internal/model"
 	"go-grocerylist/internal/repository"
 	"go-grocerylist/internal/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 type ItemHandler struct{ service *service.ItemService }
