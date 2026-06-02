@@ -35,7 +35,14 @@ func (h *ItemHandler) RegisterRoutes(r *gin.Engine) {
 	r.PUT("/items/:id/toggle", h.ToggleItem)
 }
 
-func (h *ItemHandler) Index(c *gin.Context)     { h.renderList(c, http.StatusOK, "all", "") }
+func (h *ItemHandler) Index(c *gin.Context) {
+	data, err := h.buildPageData("all", "")
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "index.html", pageData{Error: err.Error(), Filter: "all"})
+		return
+	}
+	c.HTML(http.StatusOK, "index.html", data)
+}
 func (h *ItemHandler) ListItems(c *gin.Context) { h.renderList(c, http.StatusOK, "all", "") }
 func (h *ItemHandler) FilterItems(c *gin.Context) {
 	h.renderList(c, http.StatusOK, c.Param("type"), "")
@@ -87,15 +94,17 @@ func (h *ItemHandler) buildPageData(filter, errMsg string) (pageData, error) {
 	groups := map[string][]model.Item{}
 	ordered, seen := []string{}, map[string]bool{}
 	bought := 0
+	for _, item := range allItems {
+		if item.Bought {
+			bought++
+		}
+	}
 	for _, item := range items {
 		groups[item.Category] = append(groups[item.Category], item)
 		if !seen[item.Category] {
 			ordered = append(ordered, item.Category)
 			seen[item.Category] = true
 		}
-		if item.Bought {
-			bought++
-		}
 	}
-	return pageData{Groups: groups, Ordered: ordered, Total: len(items), Bought: bought, Progress: strconv.Itoa(bought) + " of " + strconv.Itoa(len(items)) + " items bought", Error: errMsg, Filter: filter, HasItems: len(allItems) > 0, HasFilterHits: len(items) > 0}, nil
+	return pageData{Groups: groups, Ordered: ordered, Total: len(allItems), Bought: bought, Progress: strconv.Itoa(bought) + " of " + strconv.Itoa(len(allItems)) + " items bought", Error: errMsg, Filter: filter, HasItems: len(allItems) > 0, HasFilterHits: len(items) > 0}, nil
 }
