@@ -16,10 +16,13 @@ var (
 )
 
 type ItemService struct {
-	repo *repository.ItemRepository
+	repo        *repository.ItemRepository
+	categorizer *Categorizer
 }
 
-func NewItemService(repo *repository.ItemRepository) *ItemService { return &ItemService{repo: repo} }
+func NewItemService(repo *repository.ItemRepository, categorizer *Categorizer) *ItemService {
+	return &ItemService{repo: repo, categorizer: categorizer}
+}
 
 func (s *ItemService) AddItem(name string) (model.Item, error) {
 	cleanName := strings.TrimSpace(name)
@@ -30,7 +33,7 @@ func (s *ItemService) AddItem(name string) (model.Item, error) {
 		return model.Item{}, ErrNameTooLong
 	}
 
-	created, err := s.repo.Add(model.Item{Name: cleanName, Category: categorize(cleanName), Bought: false})
+	created, err := s.repo.Add(model.Item{Name: cleanName, Category: s.categorizer.Categorize(cleanName), Bought: false})
 	if err != nil {
 		return model.Item{}, err
 	}
@@ -63,21 +66,4 @@ func (s *ItemService) ListItems(filter string) ([]model.Item, error) {
 		return nil, ErrInvalidFilter
 	}
 	return s.repo.List(filter)
-}
-
-func categorize(name string) string {
-	lower := strings.ToLower(name)
-	if strings.Contains(lower, "milk") || strings.Contains(lower, "cheese") || strings.Contains(lower, "yogurt") {
-		return "Dairy"
-	}
-	if strings.Contains(lower, "apple") || strings.Contains(lower, "banana") {
-		return "Fruit"
-	}
-	if strings.Contains(lower, "chicken") || strings.Contains(lower, "beef") {
-		return "Meat"
-	}
-	if strings.Contains(lower, "bread") {
-		return "Bakery"
-	}
-	return "Other"
 }
