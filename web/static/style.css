@@ -15,7 +15,10 @@ button { border:none; border-radius:8px; background:var(--accent); color:#fff; p
 .group { flex:1 1 280px; border:1px solid var(--border); border-radius:8px; padding:.7rem; }
 .item-list { display:flex; flex-direction:column; gap:.5rem; }
 .item { display:flex; justify-content:space-between; align-items:center; gap:.5rem; border:1px solid var(--border); border-radius:6px; padding:.55rem; }
-.item.bought span { text-decoration:line-through; color:var(--muted); }
+.item-title-row { display:flex; align-items:center; gap:.45rem; flex-wrap:wrap; }
+.category-badge { display:inline-flex; align-items:center; border:1px solid #bfdbfe; border-radius:999px; background:#eff6ff; color:#1d4ed8; font-size:.78rem; font-weight:700; padding:.1rem .45rem; }
+.auto-label { color:var(--success); display:block; margin-top:.2rem; font-size:.78rem; }
+.item.bought .item-title-row > span:first-child { text-decoration:line-through; color:var(--muted); }
 .item-actions { display:flex; gap:.4rem; flex-wrap:wrap; justify-content:flex-end; }
 .item.bought .item-actions button:first-child { background:var(--success); }
 .delete-button { background:var(--danger); }

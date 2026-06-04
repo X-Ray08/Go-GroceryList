@@ -1,6 +1,10 @@
 <div class="item {{if .Bought}}bought{{end}}">
   <div>
-    <span>{{.Name}}</span>
+    <div class="item-title-row">
+      <span>{{.Name}}</span>
+      <span class="category-badge">[{{.Category}}]</span>
+    </div>
+    <small class="auto-label">Automatically categorized</small>
     <small class="muted">{{.CreatedAt.Format "Jan 2, 2006 15:04"}}</small>
   </div>
   <div class="item-actions">
