@@ -5,11 +5,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"go-grocerylist/internal/database"
 	"go-grocerylist/internal/handler"
 	"go-grocerylist/internal/repository"
 	"go-grocerylist/internal/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
