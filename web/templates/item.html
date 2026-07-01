@@ -1,18 +1,10 @@
-<div class="item {{if .Bought}}bought{{end}}">
-  <div>
-    <div class="item-title-row">
-      <span>{{.Name}}</span>
-      <span class="category-badge">[{{.Category}}]</span>
-    </div>
-    <small class="auto-label">Automatically categorized</small>
-    <small class="muted">{{.CreatedAt.Format "Jan 2, 2006 15:04"}}</small>
-  </div>
-  <div class="item-actions">
-    <button hx-put="/items/{{.ID}}/toggle" hx-target="#items-container" hx-swap="innerHTML">
-      {{if .Bought}}Mark Unbought{{else}}Mark Bought{{end}}
-    </button>
-    <button class="delete-button" hx-delete="/items/{{.ID}}" hx-target="#items-container" hx-swap="innerHTML" hx-confirm="Delete {{.Name}}?">
-      Delete
-    </button>
+<div class="item-swipe-wrapper">
+  <div class="swipe-bg swipe-bg-right">✓ Bought</div>
+  <div class="swipe-bg swipe-bg-left">🗑 Delete</div>
+  <div class="item {{if .Bought}}bought{{end}}"
+       data-delete-url="/items/{{.ID}}"
+       data-toggle-url="/items/{{.ID}}/toggle">
+    <span class="item-name">{{.Name}}</span>
+    <span class="item-date">{{.CreatedAt.Format "Jan 2, 2006"}}</span>
   </div>
 </div>

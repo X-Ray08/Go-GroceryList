@@ -3,27 +3,174 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Grocery List</title>
+  <title>GO Smart Grocery</title>
   <link rel="stylesheet" href="/static/style.css" />
-  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script src="/static/htmx.min.js?v=2" defer></script>
 </head>
 <body>
-  <main class="container">
-    <header class="header">
-      <h1>GO Smart Grocery List</h1>
-      <p>Simple, fast, and organized shopping planning.</p>
-    </header>
 
-    <section class="card">
-      <form class="add-form" hx-post="/items" hx-target="#items-container" hx-swap="innerHTML">
-        <input type="text" name="name" maxlength="80" placeholder="Add item (e.g. milk, apple, bread)" />
-        <button type="submit">Add</button>
-      </form>
-    </section>
+  <button class="dark-toggle" id="darkToggle" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
 
-    <section id="items-container" class="card" hx-get="/items" hx-trigger="load" hx-swap="innerHTML">
-      {{template "item_list.html" .}}
-    </section>
-  </main>
+  <div class="page">
+
+    <!-- ── Info panel ── -->
+    <div class="info-panel">
+      <div class="app-icon"></div>
+      <h1 class="app-name">GO for<br>Groceries</h1>
+      <p class="app-tagline">Simple, fast, and beautifully organized shopping planning — built with Go.</p>
+      <ul class="features">
+        <li>
+          -
+          Smart auto-categorization
+        </li>
+        <li>
+          -
+          Swipe left to delete, right to mark bought
+        </li>
+        <li>
+          -
+          Visual progress tracking
+        </li>
+        <li>
+          -
+          Instant real-time updates via HTMX
+        </li>
+      </ul>
+    </div>
+
+    <!-- ── iPhone mockup ── -->
+    <div class="iphone-wrapper">
+      <div class="iphone-frame">
+        <!-- Side hardware buttons -->
+        <div class="iphone-vol v1"></div>
+        <div class="iphone-vol v2"></div>
+        <div class="iphone-vol v3"></div>
+        <div class="iphone-power"></div>
+
+        <div class="iphone-screen">
+          <!-- Dynamic Island + Status bar -->
+          <div class="iphone-statusbar">
+            <span>9:41</span>
+            <div class="iphone-island"></div>
+            <div class="status-right">
+              <span>●●●</span>
+              <span>WiFi</span>
+              <span>🔋</span>
+            </div>
+          </div>
+
+          <!-- Scrollable app content -->
+          <div class="app-scroll">
+            <main class="app">
+              <header class="app-header">
+                <h2>Grocery List</h2>
+              </header>
+
+              <form class="add-form" hx-post="/items" hx-target="#items-container" hx-swap="innerHTML">
+                <input type="text" name="name" maxlength="80" placeholder="Add item…" autocomplete="off" />
+                <button type="submit">+</button>
+              </form>
+
+              <section id="items-container">
+                {{template "item_list.html" .}}
+              </section>
+            </main>
+          </div>
+
+          <div class="iphone-home-bar"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ── Dark mode ──
+    function toggleDark() {
+      const on = document.body.classList.toggle('dark');
+      document.getElementById('darkToggle').textContent = on ? '☀️' : '🌙';
+      try { localStorage.setItem('darkMode', on); } catch(e) {}
+    }
+    try { if (localStorage.getItem('darkMode') === 'true') toggleDark(); } catch(e) {}
+
+    // ── Donut chart update ──
+    function updateDonuts() {
+      document.querySelectorAll('.donut-ring').forEach(function(el) {
+        var bought = parseInt(el.dataset.bought) || 0;
+        var total  = parseInt(el.dataset.total)  || 0;
+        var pct    = total > 0 ? (bought / total * 100) : 0;
+        var arc    = el.querySelector('.donut-arc');
+        var label  = el.querySelector('.donut-pct');
+        if (arc)   arc.setAttribute('stroke-dasharray', pct.toFixed(1) + ' 100');
+        if (label) label.textContent = Math.round(pct) + '%';
+      });
+    }
+    document.body.addEventListener('htmx:afterSettle', updateDonuts);
+
+    // ── Swipe gestures ──
+    var activeSwipe = null;
+
+    function onSwipeStart(e) {
+      var item    = this;
+      var wrapper = item.parentElement;
+      var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      item.style.transition = 'none';
+      activeSwipe = { item: item, wrapper: wrapper, startX: clientX, dx: 0 };
+      if (!e.touches) e.preventDefault();
+    }
+
+    function onSwipeMove(e) {
+      if (!activeSwipe) return;
+      var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      var dx = clientX - activeSwipe.startX;
+      activeSwipe.dx = dx;
+      activeSwipe.item.style.transform = 'translateX(' + dx + 'px)';
+      activeSwipe.wrapper.classList.toggle('hint-left',  dx < -20);
+      activeSwipe.wrapper.classList.toggle('hint-right', dx > 20);
+    }
+
+    function onSwipeEnd() {
+      if (!activeSwipe) return;
+      var item    = activeSwipe.item;
+      var wrapper = activeSwipe.wrapper;
+      var dx      = activeSwipe.dx;
+      var threshold = 85;
+      activeSwipe = null;
+
+      item.style.transition = 'transform .28s ease';
+
+      if (dx < -threshold) {
+        item.style.transform = 'translateX(-130%)';
+        setTimeout(function() {
+          htmx.ajax('DELETE', item.dataset.deleteUrl, { target: '#items-container', swap: 'innerHTML' });
+        }, 240);
+      } else if (dx > threshold) {
+        item.style.transform = 'translateX(130%)';
+        setTimeout(function() {
+          htmx.ajax('PUT', item.dataset.toggleUrl, { target: '#items-container', swap: 'innerHTML' });
+        }, 240);
+      } else {
+        item.style.transform = '';
+        wrapper.classList.remove('hint-left', 'hint-right');
+      }
+    }
+
+    document.addEventListener('touchmove', onSwipeMove, { passive: true });
+    document.addEventListener('touchend',  onSwipeEnd);
+    document.addEventListener('mousemove', onSwipeMove);
+    document.addEventListener('mouseup',   onSwipeEnd);
+
+    function attachSwipe() {
+      document.querySelectorAll('.item[data-delete-url]:not([data-swipe])').forEach(function(item) {
+        item.dataset.swipe = '1';
+        item.addEventListener('touchstart', onSwipeStart, { passive: true });
+        item.addEventListener('mousedown',  onSwipeStart);
+      });
+      updateDonuts();
+    }
+
+    document.body.addEventListener('htmx:afterSettle', attachSwipe);
+    setTimeout(attachSwipe, 150);
+  </script>
 </body>
 </html>

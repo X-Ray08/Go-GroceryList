@@ -37,6 +37,7 @@ func (h *ItemHandler) RegisterRoutes(r *gin.Engine) {
 }
 
 func (h *ItemHandler) Index(c *gin.Context) {
+	c.Header("Cache-Control", "no-store")
 	data, err := h.buildPageData("all", "")
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "index.html", pageData{Error: err.Error(), Filter: "all"})
