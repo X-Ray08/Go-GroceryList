@@ -1,18 +1,38 @@
 <div class="toolbar">
-  <div class="progress-row"><strong>Progress:</strong> <span>{{.Progress}}</span></div>
+  <div class="progress-area">
+    <svg class="donut-ring" viewBox="0 0 36 36" data-bought="{{.Bought}}" data-total="{{.Total}}">
+      <circle class="donut-bg" cx="18" cy="18" r="15.9" fill="none" stroke-width="3.5"/>
+      <circle class="donut-arc" cx="18" cy="18" r="15.9" fill="none" stroke-width="3.5"
+              stroke-dasharray="0 100" stroke-linecap="round"
+              transform="rotate(-90 18 18)"/>
+      <text class="donut-pct" x="18" y="21" text-anchor="middle">0%</text>
+    </svg>
+    <span class="progress-label">{{.Bought}} of {{.Total}}<br>items bought</span>
+  </div>
   <div class="filters">
-    <button class="filter {{if eq .Filter "all"}}active{{end}}" hx-get="/items/filter/all" hx-target="#items-container" hx-swap="innerHTML">All</button>
-    <button class="filter {{if eq .Filter "unbought"}}active{{end}}" hx-get="/items/filter/unbought" hx-target="#items-container" hx-swap="innerHTML">Unbought</button>
-    <button class="filter {{if eq .Filter "bought"}}active{{end}}" hx-get="/items/filter/bought" hx-target="#items-container" hx-swap="innerHTML">Bought</button>
+    <button class="filter {{if eq .Filter "all"}}active{{end}}"
+            hx-get="/items/filter/all" hx-target="#items-container" hx-swap="innerHTML">All</button>
+    <button class="filter {{if eq .Filter "unbought"}}active{{end}}"
+            hx-get="/items/filter/unbought" hx-target="#items-container" hx-swap="innerHTML">Active</button>
+    <button class="filter {{if eq .Filter "bought"}}active{{end}}"
+            hx-get="/items/filter/bought" hx-target="#items-container" hx-swap="innerHTML">Done</button>
   </div>
 </div>
 
 {{if .Error}}<p class="error">{{.Error}}</p>{{end}}
 
 {{if not .HasItems}}
-  <p class="muted">No items yet.</p>
+  <div class="empty-state">
+    <span class="empty-icon">🛍️</span>
+    <p>Your list is empty</p>
+    <span>Add something above to get started</span>
+  </div>
 {{else if not .HasFilterHits}}
-  <p class="muted">No matching items.</p>
+  <div class="empty-state">
+    <span class="empty-icon">✓</span>
+    <p>Nothing here</p>
+    <span>Try a different filter</span>
+  </div>
 {{else}}
   <div class="groups">
     {{range .Ordered}}

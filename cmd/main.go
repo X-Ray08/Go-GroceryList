@@ -5,11 +5,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/gin-gonic/gin"
 	"go-grocerylist/internal/database"
 	"go-grocerylist/internal/handler"
 	"go-grocerylist/internal/repository"
 	"go-grocerylist/internal/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -32,7 +33,11 @@ func main() {
 	defer db.Close()
 
 	repo := repository.NewItemRepository(db)
-	svc := service.NewItemService(repo)
+	categorizer, err := service.NewCategorizer("data/products.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	svc := service.NewItemService(repo, categorizer)
 	h := handler.NewItemHandler(svc)
 	h.RegisterRoutes(r)
 
